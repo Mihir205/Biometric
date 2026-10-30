@@ -28,18 +28,56 @@ pytest --cov=src tests/
 
 # 5. Launch the application
 python -m streamlit run app.py
-
-# 6. Generate evaluation pairs (dev + test)
-python evaluation/generate_pairs.py
-
-# 7. Run dev-partition evaluation (safe to run any time)
-python evaluation/evaluate.py --partition dev
-
-# 8. Run FINAL test-partition evaluation (ONE TIME ONLY — after M3 gate)
-#    First, create the M3 gate file after reviewer sign-off:
-# echo "" > evaluation/M3_GATE_CLEARED
-python evaluation/evaluate.py --partition test
+# Open your browser to http://localhost:8501
 ```
+
+---
+
+## Web Application User Guide
+
+The Streamlit web interface (`app.py`) provides an interactive workflow for enrolling fingerprints, verifying identity, and administrative template management.
+
+### Generating Test Samples (Optional)
+If you don't have sample fingerprint images on hand, generate synthetic test samples using the bundled script:
+```bash
+python data/create_samples.py
+```
+This generates:
+- `data/samples/sample_alice_1.png` — Alice's fingerprint (impression 1)
+- `data/samples/sample_alice_2.png` — Alice's probe fingerprint (impression 2, genuine match)
+- `data/samples/sample_bob_1.png` — Bob's probe fingerprint (impostor, non-match)
+
+---
+
+### Step-by-Step UI Guide
+
+#### 1. 📥 Tab 1: Enroll a Fingerprint
+1. Switch to the **📥 Enroll** tab.
+2. Enter a **User ID** (e.g., `alice_001`).
+3. Click **Browse files** and select a valid fingerprint image (`.bmp`, `.png`, `.tif`, or `.tiff`).
+4. Click **Enroll**.
+   - **Under the hood:** The system verifies file magic bytes, normalizes the ridge pattern, extracts minutiae, encrypts the feature template using authenticated AES-128-CBC + HMAC-SHA256 (Fernet), and stores it in SQLite (`biometric.db`). The raw uploaded image is immediately discarded and never saved.
+   - Successful enrollment displays: `✅ User alice_001 enrolled successfully.`
+   - *Note: Re-enrolling an existing user ID is prevented unless "Allow re-enrollment" is checked with an active Admin session.*
+
+#### 2. 🔍 Tab 2: Verify a Fingerprint (1:1 Matching)
+1. Switch to the **🔍 Verify** tab.
+2. Enter the **User ID to verify against** (e.g., `alice_001`).
+3. Upload a probe fingerprint impression.
+4. Click **Verify**.
+   - **Genuine match:** If the probe matches the enrolled template, the interface displays:  
+     `✅ ACCEPTED — Fingerprints match.`
+   - **Impostor match:** If the prints differ or the probe does not match, the interface displays:  
+     `❌ REJECTED — Fingerprints do not match.`
+   - **Anti-Hill-Climbing Defense:** Numeric similarity scores are intentionally hidden from the UI to protect against gradient-based biometric synthesis and hill-climbing attacks.
+
+#### 3. 🛠 Tab 3: Admin & Secure Template Deletion
+1. Open the left sidebar and enter the **Admin password** (configured via `BIOMETRIC_ADMIN_SECRET` in `.env`, e.g., `admin123`).
+2. Click **Login** to activate the admin session.
+3. Switch to the **🛠 Admin** tab:
+   - View the list of all currently enrolled user IDs.
+   - Click **Delete** next to any user ID to transactionally scrub their encrypted template from the database with zero residual artifacts.
+4. Click **Logout** in the sidebar at any time to clear the session state.
 
 ---
 
