@@ -47,6 +47,8 @@ data/FVC*/
 data/raw/
 data/processed/
 data/samples/
+data/DB1_B/
+data/DB*/
 
 # ─── Evaluation artefacts containing templates ────────────
 evaluation/pairs/

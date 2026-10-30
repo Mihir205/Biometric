@@ -131,8 +131,8 @@ def match(t1: FingerprintTemplate, t2: FingerprintTemplate) -> MatchResult:
     dist_thresh_sq = float(config.MATCH_DISTANCE_THRESHOLD) ** 2
     angle_thresh = float(math.radians(config.MATCH_ANGLE_THRESHOLD_DEG))
 
-    # For templates with many points, candidate anchors give full coverage in milliseconds
-    max_anchors = 30
+    # Check candidate anchors with full coverage for reliable alignment
+    max_anchors = 80
     step1 = max(1, n1 // max_anchors)
     step2 = max(1, n2 // max_anchors)
     idx1 = list(range(0, n1, step1))

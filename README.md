@@ -37,15 +37,19 @@ python -m streamlit run app.py
 
 The Streamlit web interface (`app.py`) provides an interactive workflow for enrolling fingerprints, verifying identity, and administrative template management.
 
-### Generating Test Samples (Optional)
-If you don't have sample fingerprint images on hand, generate synthetic test samples using the bundled script:
+### Getting the Benchmark Dataset (FVC2002 DB1_B)
+
+For real evaluation and presentation demos, download the official **FVC2002 DB1_B** benchmark dataset (80 genuine optical impressions, 10 fingers × 8 impressions each):
+
 ```bash
-python data/create_samples.py
+python data/download_dataset.py
 ```
-This generates:
-- `data/samples/sample_alice_1.png` — Alice's fingerprint (impression 1)
-- `data/samples/sample_alice_2.png` — Alice's probe fingerprint (impression 2, genuine match)
-- `data/samples/sample_bob_1.png` — Bob's probe fingerprint (impostor, non-match)
+This automatically downloads and unpacks the 80 images into `data/DB1_B/`:
+- `101_1.tif` to `101_8.tif`: Finger 101 impressions
+- `102_1.tif` to `102_8.tif`: Finger 102 impressions
+- ... up to `110_8.tif`
+
+*(Alternatively, you can run `python data/create_samples.py` if you prefer 3 quick synthetic sample images in `data/samples/`).*
 
 ---
 
@@ -53,22 +57,22 @@ This generates:
 
 #### 1. 📥 Tab 1: Enroll a Fingerprint
 1. Switch to the **📥 Enroll** tab.
-2. Enter a **User ID** (e.g., `alice_001`).
-3. Click **Browse files** and select a valid fingerprint image (`.bmp`, `.png`, `.tif`, or `.tiff`).
+2. Enter a **User ID** (e.g., `user_101`).
+3. Click **Browse files** and select a real benchmark impression (e.g., `data/DB1_B/101_1.tif`).
 4. Click **Enroll**.
    - **Under the hood:** The system verifies file magic bytes, normalizes the ridge pattern, extracts minutiae, encrypts the feature template using authenticated AES-128-CBC + HMAC-SHA256 (Fernet), and stores it in SQLite (`biometric.db`). The raw uploaded image is immediately discarded and never saved.
-   - Successful enrollment displays: `✅ User alice_001 enrolled successfully.`
+   - Successful enrollment displays: `✅ User user_101 enrolled successfully.`
    - *Note: Re-enrolling an existing user ID is prevented unless "Allow re-enrollment" is checked with an active Admin session.*
 
 #### 2. 🔍 Tab 2: Verify a Fingerprint (1:1 Matching)
 1. Switch to the **🔍 Verify** tab.
-2. Enter the **User ID to verify against** (e.g., `alice_001`).
-3. Upload a probe fingerprint impression.
-4. Click **Verify**.
-   - **Genuine match:** If the probe matches the enrolled template, the interface displays:  
-     `✅ ACCEPTED — Fingerprints match.`
-   - **Impostor match:** If the prints differ or the probe does not match, the interface displays:  
-     `❌ REJECTED — Fingerprints do not match.`
+2. Enter the **User ID to verify against** (e.g., `user_101`).
+3. **Demonstrate Genuine Verification (Accepted):**
+   - Upload another impression of the **same finger**: `data/DB1_B/101_2.tif`.
+   - Click **Verify** → Output: `✅ ACCEPTED — Fingerprints match.`
+4. **Demonstrate Impostor Rejection (Rejected):**
+   - Upload an impression from a **different finger**: `data/DB1_B/102_1.tif`.
+   - Click **Verify** → Output: `❌ REJECTED — Fingerprints do not match.`
    - **Anti-Hill-Climbing Defense:** Numeric similarity scores are intentionally hidden from the UI to protect against gradient-based biometric synthesis and hill-climbing attacks.
 
 #### 3. 🛠 Tab 3: Admin & Secure Template Deletion
