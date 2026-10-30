@@ -1,0 +1,71 @@
+# ─── Python ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# ─── Virtual environments ─────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ─── Secrets & credentials (NEVER commit these) ───────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+secrets.json
+secrets.yaml
+secrets.toml
+
+# ─── Database files ───────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Dataset (FVC2002 / FVC2004) ──────────────────────────
+# Dataset files must not be committed (license restriction)
+data/*.tif
+data/*.bmp
+data/*.png
+data/*.jpg
+data/*.jpeg
+data/FVC*/
+data/raw/
+data/processed/
+data/samples/
+
+# ─── Evaluation artefacts containing templates ────────────
+evaluation/pairs/
+evaluation/results/
+reports/results/*.json
+reports/results/*.csv
+
+# ─── Logs ─────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── OS / IDE ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ─── pytest / coverage ────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
