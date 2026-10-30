@@ -51,10 +51,8 @@ data/DB1_B/
 data/DB*/
 
 # ─── Evaluation artefacts containing templates ────────────
-evaluation/pairs/
 evaluation/results/
-reports/results/*.json
-reports/results/*.csv
+!reports/results/*.json
 
 # ─── Logs ─────────────────────────────────────────────────
 *.log

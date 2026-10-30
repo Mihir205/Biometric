@@ -96,10 +96,16 @@ def run_evaluation(partition: str) -> None:
     extraction_times: list[float] = []
     comparison_times: list[float] = []
 
+    # Cache templates to avoid redundant multi-second image re-extractions (R6 in Risk Register)
+    template_cache: dict[str, tmpl.FingerprintTemplate | None] = {}
+
     def _timed_process(path: str):
+        if path in template_cache:
+            return template_cache[path]
         t0 = time.perf_counter()
         t = _process_image(path)
         extraction_times.append((time.perf_counter() - t0) * 1000)
+        template_cache[path] = t
         return t
 
     def _timed_match(t1, t2):
